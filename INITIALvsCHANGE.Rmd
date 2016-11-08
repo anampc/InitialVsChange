@@ -1,0 +1,67 @@
+---
+title: "InitialVSchange"
+author: "Ana Palacio"
+date: "November 7, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+  library(ggplot2)
+```
+
+### 1 Create a fake source of SH ratios. In this case I used values from 0.00001 to 0.99, but this can be changed 
+
+```{r SourceOfFakeSH}
+SHsource <- seq(from=0.00001, to=0.99, by=.0001)
+```
+
+Can I LOOP THE FOLLOWING CODE???
+
+### 2. I sampled the fake SH data source to get fake inital SH values and did the same to get fake final SH data
+
+### 3. Calculate the change in SH using initial and final data
+
+```{r SAMPLE}
+initial<-(sample(SHsource, size=100, replace=TRUE))
+LogInitial<-log10(initial)
+final<-(sample(SHsource, size=100, replace=TRUE))
+changeRowData<-final-initial
+changeLogData<-log10(final/initial)
+
+# Create data frame initial vs final
+data<-data.frame(initial,LogInitial, final,changeRowData,changeLogData)
+plot(data)
+summary(data)
+```
+
+## 4.Raw data
+```{r Raw}
+
+InitialvsChange <- ggplot(data, aes(x=initial, y=changeRowData)) +
+  geom_point(size=3) +
+  geom_hline(yintercept = 0) +
+  geom_smooth(method = "lm", se = FALSE )
+ggExtra::ggMarginal(InitialvsChange, type="histogram")
+
+lmRAW=lm(changeRowData ~ initial,data=data)
+lmRAW
+summary(lmRAW)
+
+cor(data,method="pearson")
+```
+
+## 5.Transformed data
+```{r LOG}
+InitialvsFinal_Transformed <- ggplot(data, aes(x=LogInitial, y=changeLogData)) +
+  geom_point(size=3) +
+  geom_hline(yintercept = 0) +
+  geom_smooth(method = "lm", se = FALSE )
+ggExtra::ggMarginal(InitialvsFinal_Transformed, type="histogram")
+
+lm.out=lm(changeLogData ~ LogInitial,data=data)
+lm.out
+summary(lm.out)
+
+```
+
